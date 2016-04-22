@@ -1,0 +1,24 @@
+<html lang="ja">
+<head>
+	<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+	<script src="/static/javascripts/client.js"></script>
+	<meta http-equiv="content-type"
+		content="text/html; charset=UTF-8">
+	<title>sample</title>
+	<style>
+	body { font-size:12pt; color:#006666; }
+	h1 { font-size:18pt; background-color:#AAFFFF; }
+	pre { background-color:#EEEEEE; }
+	</style>
+</head>
+<body>
+	<header>
+		<h1 id="h1">client実験ページ</h1>
+	</header>
+	<button  onclick=javascript:connect() >接続</button>
+	<button  onclick=javascript:send() >送信</button>
+	<p>最終送信時刻:<span id="cnt"></span></p>
+	<p>受信データ<span id="data"></span></p>
+	<p>接続状態<span id="isConnected"></span></p>
+</body>
+</html>
