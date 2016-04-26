@@ -1,26 +1,34 @@
 #-*-coding:utf-8-*-
-
+#Import sioclient from somewhere.
 import os,sys
 sys.path.append(os.path.join(os.getcwd(),os.pardir))
-import socketClient
+import sioclient
 
 import time
 class Main:
-	SocketClient=socketClient.makeSocketClient()
-	def __init__(self,url,port):
-		self.socket=Main.SocketClient(url,port,self)
+	SioClient=sioclient.makeSioClient()
+	def __init__(self,uri):
+		self.uri=uri
+		self.socket=Main.SioClient(uri,self)
+		self.cnt=0
 	def start(self):
-		self.socket.start()
-		self.socket.emit('enter_room',{'room':"Client"})
 		self.mainLoop()
 	def mainLoop(self):
+		self.socket.start()
 		while(True):
-			self.socket.emit('an event',{'platform':"Python",'Data':[1,2,3]})
-			time.sleep(1)
-	@SocketClient.on('server push')
-	def onServerpush(self,*args):
-		print('server push', args)
+			if(self.socket.isConnected()):
+				self.socket.transfer('an event',{'hoge':'fuga','foo':[1,3.,True],'cnt':self.cnt},"Game")
+			time.sleep(1./60.)
+	@SioClient.on('connect')
+	def onConnect(self):
+		print "connected"
+		self.socket.emit('enter_room',{'room':"Client"})
+	@SioClient.on('server push')
+	def onServerpush(self,event):
+		data=event.get_messages()
+		print "'server push'"+`data`
+		self.cnt=data[1]['cnt']
 
 if(__name__=='__main__'):
-	main=Main('localhost',8000)
+	main=Main('http://localhost:8000')
 	main.start()
