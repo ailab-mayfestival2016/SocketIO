@@ -36,8 +36,10 @@ void SampleClient::onSocketOpen(std::string const& nsp){
 	//データ送受信のイベントはclientではなくsocket単位のため、ここで登録する。
 	std::cout<<"onSocketOpen("<<nsp<<")"<<std::endl;
 	if(nsp=="/"){
-		client.socket(nsp)->on("server push",std::bind(&SampleClient::OnAnEvent,this,std::placeholders::_1));
-		client.socket()->emit("enter_room",JSON().add("room","Client").pack());
+		sio::socket::event_listener f;
+		f = std::bind(&SampleClient::OnServerPush, this, std::placeholders::_1);
+		client.socket(nsp)->on("server push",f);
+		client.socket()->emit("enter_room",sio::Object().add("room","Client").pack());
 	}
 }
 void SampleClient::onSocketClose(std::string const& nsp){
@@ -45,30 +47,32 @@ void SampleClient::onSocketClose(std::string const& nsp){
 	//あえて対策しなくともよいのでは？
 	std::cout<<"onSocketClose("<<nsp<<")"<<std::endl;
 }
-void SampleClient::OnAnEvent(sio::event &event){
+void SampleClient::OnServerPush(sio::event &event){
 	//イベント名は一応event.get_name()で取得できる
 	std::string name=event.get_name();
 	//データはevent.get_message()で取得できる
 	sio::message::ptr data=event.get_messages().to_array_message();
-	//JSON.hをincludeしていればデータもこの型のまま文字列として出力できる
+	//Object.hをincludeしていればデータもこの型のまま文字列として出力できる
 	std::cout<<"'"<<name<<"',"<<data<<std::endl;
 
-	//JSONならばmap=data->get_mapJSON’ has()で子要素のmapを取得できる
+	//Objectならばmap=data->get_mapObject’ has()で子要素のmapを取得できる
 	//ptr=map["key"]でキーkeyに対応する値(のポインタ)が得られるので、型に合わせてptr->get_int()のように実際の値を得る
 	//一気に書くと以下のような感じ
 	//cnt=data->get_map()["cnt"]->get_int();
-	//JSONデータを送信する
-	/*{'platform':"C++",'Data':[1,2,"string"]}*/
-	client.socket()->emit("an event",JSON()
-			.add("Integer with explicit cast",(int64_t)1)
+	//Objectデータを送信する
+	sio::Object sendData;
+	sendData.add("Integer with explicit cast",(int64_t)1)
 			.addInt("Integer with special method",2)
 			.add("Double",1.0/3.0)
 			.add("String","C++")
-			.add("Array",Array()
+			.add("Array",sio::Array()
 					.addInt(1)
 					.add((int64_t)2)
 					.add("string"))
-			.add("Child JSON",JSON()
-					.add("Child","JSON"))
-			.pack());
+			.add("Child Object",sio::Object()
+					.add("Child","Object"));
+	client.socket()->emit("transfer",sio::Object()
+		.add("event","an event")
+		.add("room","Game")
+		.add("data",sendData).pack());
 }

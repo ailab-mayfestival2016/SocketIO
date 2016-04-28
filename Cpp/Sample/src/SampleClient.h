@@ -1,6 +1,6 @@
 #pragma once
 #include <sio_client.h>
-#include <JSON.h>
+#include <Object.h>
 class SampleClient{
 	//Socket.IO client object
 	sio::client client;
@@ -18,6 +18,6 @@ public:
 	//Socket Namespace Connection Listener
 	virtual void onSocketOpen(std::string const& nsp);
 	virtual void onSocketClose(std::string const& nsp);
-	//On "an event" handler.
-	void OnAnEvent(sio::event &event);
+	//On "server push" handler.
+	void OnServerPush(sio::event &event);
 };
