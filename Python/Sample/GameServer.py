@@ -1,35 +1,39 @@
 #-*-coding:utf-8-*-
 
-#Import sioclient from somewhere.
+#Import sioclientCpp from somewhere.
 import os,sys
 sys.path.append(os.path.join(os.getcwd(),os.pardir))
-import sioclient
+import sioclientCpp as sio
 
-import time
-from threading import Timer,Thread
-from flask import render_template
+from threading import Timer
+
 class GameServer:
-	SioClient=sioclient.makeSioClient()
 	def __init__(self,uri,fps=60):
-		self.socket=GameServer.SioClient(uri,self)
+		self.client=sio.Client()
+		self.uri=uri
 		self.cnt=0
 		self.fps=fps
-	@SioClient.on('an event')
-	def onAnEvent(self,sid,data):
-		print "an event("+`self.cnt`+") data="+`data`
 	def start(self):
-		self.socket.start()
+		#self.client.set_close_listener(self.onOpen)
+		self.client.set_socket_open_listener(self.onSocketOpen)
+		#self.client.set_socket_close_listener(self.onSocketClose)
+		#self.client.set_close_listener(self.onClose)
+		self.client.connect(self.uri)
 		Timer(1./self.fps,self.mainLoop,()).start()
 	def mainLoop(self):
 		Timer(1./self.fps,self.mainLoop,()).start()
 		self.cnt+=1
-		self.socket.transfer('server push',[12,{'xxx': 'yyy','cnt':self.cnt,'array':[1,2,"aaa"]}],'Client')
-	@SioClient.on('connect')
-	def onConnect(self):
-		print('connected')
-		self.socket.emit('enter_room',{'room':"Game"})
-	@SioClient.on('an event')
-	def onDisconnect(self,event):
+		if(self.client.opened()):
+			self.client.socket().emit('transfer',{
+				'event':'server push',
+				'room':'Client',
+				'data':[12,{'xxx': 'yyy','cnt':self.cnt,'array':[1,2,"aaa"]}]
+			})
+	def onSocketOpen(self,nsp):
+		if(nsp=="/"):
+			self.client.socket(nsp).on('an event',self.onAnEvent)
+			self.client.socket(nsp).emit('enter_room',{'room':"Game"})
+	def onAnEvent(self,event):
 		print('an event', event.get_messages())
 
 if __name__ == '__main__':
