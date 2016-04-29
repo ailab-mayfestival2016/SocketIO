@@ -1,0 +1,95 @@
+cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
+PROJECT(sioclientCpp)
+
+set(MAJOR 0)
+set(MINOR 1)
+set(PATCH 0)
+
+if(NOT CMAKE_BUILD_TYPE )
+MESSAGE(STATUS "not define build type, set to release" )
+set(CMAKE_BUILD_TYPE Release )
+elseif(NOT (${CMAKE_BUILD_TYPE} STREQUAL "Release" OR ${CMAKE_BUILD_TYPE} STREQUAL "Debug" ))
+MESSAGE(SEND_ERROR "CMAKE_BUILD_TYPE must be either Release or Debug")
+return()
+endif()
+set(BOOST_VER "1.55.0" CACHE STRING "boost version" )
+set(Boost_USE_STATIC_LIBS ON)
+set(BUILD_SHARED_LIBS ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+add_definitions(-DBOOST_PYTHON_STATIC_LIB)
+FIND_PACKAGE(PythonLibs 2.7 REQUIRED)
+
+set(Boost_USE_MULTITHREADED ON) 
+set(Boost_USE_STATIC_RUNTIME OFF)
+find_package(Boost ${BOOST_VER} REQUIRED COMPONENTS python system date_time random)
+#Boostライブラリをターゲットにマージするための準備
+include(MyMacro.cmake)
+if(MSVC)
+	if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+	FILTER_LIST("${Boost_LIBRARIES}" BOOST_MERGE_LIBS optimized debug)
+	else()
+	FILTER_LIST("${Boost_LIBRARIES}" BOOST_MERGE_LIBS debug optimized)
+	endif()
+else()
+	SET(BOOST_MERGE_LIBS ${Boost_LIBRARIES})
+endif()
+
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src/Python ALL_SRC)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/Dependency/socket.io-client-cpp/src ALL_SRC)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/Dependency/socket.io-client-cpp/src/internal ALL_SRC)
+file(GLOB ALL_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/Python/*.h ${CMAKE_CURRENT_SOURCE_DIR}/Dependency/src/*.h)
+set(SIO_INCLUDEDIR ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(sioclientCpp SHARED ${ALL_SRC})
+target_include_directories(sioclientCpp PRIVATE 
+    ${Boost_INCLUDE_DIRS}
+    ${PYTHON_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Python 
+    ${CMAKE_CURRENT_SOURCE_DIR}/Dependency/socket.io-client-cpp/src 
+    ${CMAKE_CURRENT_SOURCE_DIR}/Dependency/socket.io-client-cpp/lib/websocketpp/ 
+    ${CMAKE_CURRENT_SOURCE_DIR}/Dependency/socket.io-client-cpp/lib/rapidjson/include
+)
+
+set_property(TARGET sioclientCpp PROPERTY CXX_STANDARD 11)
+set_property(TARGET sioclientCpp PROPERTY CXX_STANDARD_REQUIRED ON)
+target_link_libraries(sioclientCpp PRIVATE ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+MERGE_STATIC(sioclientCpp "${BOOST_MERGE_LIBS} ${PYTHON_LIBRARIES}")
+#if(BUILD_SHARED_LIBS)
+#set_target_properties(sioclientCpp
+#	PROPERTIES
+#		SOVERSION ${MAJOR}
+#		VERSION ${MAJOR}.${MINOR}.${PATCH}
+#	)
+#endif()
+list(APPEND TARGET_LIBRARIES sioclientCpp)
+
+find_package(OpenSSL)
+if(OPENSSL_FOUND)
+add_library(sioclientCpp_tls SHARED ${ALL_SRC})
+target_include_directories(sioclientCpp_tls PRIVATE 
+    ${Boost_INCLUDE_DIRS}
+    ${PYTHON_INCLUDE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Python 
+    ${CMAKE_CURRENT_SOURCE_DIR}/Dependency/socket.io-client-cpp/src 
+    ${CMAKE_CURRENT_SOURCE_DIR}/Dependency/socket.io-client-cpp/lib/websocketpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/Dependency/socket.io-client-cpp/lib/rapidjson/include
+    ${OPENSSL_INCLUDE_DIR}
+)
+
+set_property(TARGET sioclientCpp_tls PROPERTY CXX_STANDARD 11)
+set_property(TARGET sioclientCpp_tls PROPERTY CXX_STANDARD_REQUIRED ON)
+target_link_libraries(sioclientCpp_tls PRIVATE ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${PYTHON_LIBRARIES})
+target_compile_definitions(sioclientCpp_tls PRIVATE -DSIO_TLS)
+#if(BUILD_SHARED_LIBS)
+#set_target_properties(sioclientCpp_tls
+#	PROPERTIES
+#		SOVERSION ${MAJOR}
+#		VERSION ${MAJOR}.${MINOR}.${PATCH}
+#	)
+#endif()
+list(APPEND TARGET_LIBRARIES sioclientCpp_tls)
+
+endif()
+
+install(TARGETS ${TARGET_LIBRARIES}
+    DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/Python"
+)

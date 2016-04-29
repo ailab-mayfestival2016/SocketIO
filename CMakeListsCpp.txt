@@ -27,6 +27,18 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 #add_definitions( -DBOOST_ERROR_CODE_HEADER_ONLY )
 #add_definitions( -DBOOST_SYSTEM_NO_LIB )
 find_package(Boost ${BOOST_VER} REQUIRED COMPONENTS system date_time random) 
+#Boostライブラリをターゲットにマージするための準備
+include(MyMacro.cmake)
+if(MSVC)
+	if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+	FILTER_LIST("${Boost_LIBRARIES}" BOOST_MERGE_LIBS optimized debug)
+	else()
+	FILTER_LIST("${Boost_LIBRARIES}" BOOST_MERGE_LIBS debug optimized)
+	endif()
+else()
+	SET(BOOST_MERGE_LIBS ${Boost_LIBRARIES})
+endif()
+
 
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src/Cpp ALL_SRC)
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/Dependency/socket.io-client-cpp/src ALL_SRC)
@@ -47,6 +59,7 @@ set_property(TARGET sioclient PROPERTY CXX_STANDARD 11)
 set_property(TARGET sioclient PROPERTY CXX_STANDARD_REQUIRED ON)
 MESSAGE("BOOSTLIB=" ${Boost_LIBRARIES})
 target_link_libraries(sioclient PRIVATE ${Boost_LIBRARIES})
+MERGE_STATIC(sioclient "${BOOST_MERGE_LIBS}")
 if(BUILD_SHARED_LIBS)
 set_target_properties(sioclient
 	PROPERTIES
@@ -71,6 +84,7 @@ target_include_directories(sioclient_tls PRIVATE
 set_property(TARGET sioclient_tls PROPERTY CXX_STANDARD 11)
 set_property(TARGET sioclient_tls PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(sioclient_tls PRIVATE ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} )
+MERGE_STATIC(sioclient_tls "${BOOST_MERGE_LIBS} ${OPENSSL_LIBRARIES}")
 target_compile_definitions(sioclient_tls PRIVATE -DSIO_TLS)
 if(BUILD_SHARED_LIBS)
 set_target_properties(sioclient_tls
@@ -82,7 +96,6 @@ endif()
 list(APPEND TARGET_LIBRARIES sioclient_tls)
 
 endif()
-#include (mergestaticlibs.cmake)
 install(FILES ${ALL_HEADERS} 
     DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/Cpp/include"
 )
@@ -90,60 +103,6 @@ install(FILES ${ALL_HEADERS}
 install(TARGETS ${TARGET_LIBRARIES}
     DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/Cpp/lib/${CMAKE_BUILD_TYPE}"
 )
-#Boostライブラリをターゲットにマージ
-macro(FILTER_LIST INPUT OUTPUT GOOD BAD)
-  set(LST ${INPUT})   # can we avoid this?
-  set(PICKME YES)
-  foreach(ELEMENT IN LISTS LST)
-    if(${ELEMENT} STREQUAL general OR ${ELEMENT} STREQUAL ${GOOD})
-      set(PICKME YES)
-    elseif(${ELEMENT} STREQUAL ${BAD})
-      set(PICKME NO)
-    elseif(PICKME)
-      list(APPEND ${OUTPUT} ${ELEMENT})
-    endif()
-  endforeach()
-endmacro(FILTER_LIST)
-if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
-FILTER_LIST("${Boost_LIBRARIES}" BOOST_MERGE_LIBS optimized debug)
-else()
-FILTER_LIST("${Boost_LIBRARIES}" BOOST_MERGE_LIBS debug optimized)
-endif()
-IF(MSVC)
-	# To merge libs, just pass them to lib.exe command line.
-	SET(LINKER_EXTRA_FLAGS "")
-	FOREACH(LIB ${BOOST_MERGE_LIBS})
-	MESSAGE(STATUS "LIB==" ${LIB})
-	  SET(LINKER_EXTRA_FLAGS "${LINKER_EXTRA_FLAGS} ${LIB}")
-	ENDFOREACH()
-	SET_TARGET_PROPERTIES(sioclient PROPERTIES STATIC_LIBRARY_FLAGS
-	  "${LINKER_EXTRA_FLAGS}")
-ELSE()
-	IF(APPLE)
-	  # Use OSX's libtool to merge archives (ihandles universal
-	  # binaries properly)
-	  ADD_CUSTOM_COMMAND(TARGET ${TARGET} POST_BUILD
-		COMMAND rm $<TARGET_FILE_NAME:$[TARGET}>
-		COMMAND /usr/bin/libtool -static -o $<TARGET_FILE_NAME:$[TARGET}>
-		${BOOST_MERGE_LIBS}
-	  )
-	ELSE()
-	  # Generic Unix, Cygwin or MinGW. In post-build step, call
-	  # script, that extracts objects from archives with "ar x"
-	  # and repacks them with "ar r"
-	  SET(TARGET ${TARGET})
-	  CONFIGURE_FILE(
-		${THIS_CMAKE_SCRIPT_DIR}/MergeStaticLibsPosix.cmake.in
-		${CMAKE_CURRENT_BINARY_DIR}/merge_archives_${TARGET}.cmake
-		@ONLY
-	  )
-	  ADD_CUSTOM_COMMAND(TARGET ${TARGET} POST_BUILD
-		COMMAND rm $<TARGET_FILE_NAME:$[TARGET}>
-		COMMAND ${CMAKE_COMMAND} -P
-		${CMAKE_CURRENT_BINARY_DIR}/merge_archives_${TARGET}.cmake
-	  )
-	ENDIF()
-  ENDIF()
 
 
 #install(FILES ${BOOST_MERGE_LIBS} 
