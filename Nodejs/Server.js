@@ -13,7 +13,14 @@ io.sockets.on('connection', function (socket) {
 	socket.on('transfer',function(data){
 		//console.log(JSON.stringify(data))
 		if('room' in data){
-			socket.broadcast.to(data['room']).emit(data['event'],data['data']);
+			if(Array.isArray(data['room'])){
+				var rooms=data['room']
+				for(var i=0;i<rooms.length;++i){
+					socket.broadcast.to(rooms[i]).emit(data['event'],data['data']);
+				}
+			}else{
+				socket.broadcast.to(data['room']).emit(data['event'],data['data']);
+			}
 		}else{
 			socket.broadcast.emit(data['event'],data['data']);
 		}

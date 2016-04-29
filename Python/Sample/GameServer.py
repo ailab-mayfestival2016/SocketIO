@@ -26,7 +26,7 @@ class GameServer:
 		if(self.client.opened()):
 			self.client.socket().emit('transfer',{
 				'event':'server push',
-				'room':'Client',
+				'room':['Client'],
 				'data':[12,{'xxx': 'yyy','cnt':self.cnt,'array':[1,2,"aaa"]}]
 			})
 	def onSocketOpen(self,nsp):

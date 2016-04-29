@@ -25,7 +25,7 @@ class Main:
 				self.client.socket().emit('transfer',{
 					'event':'an event',
 					'data':{'hoge':'fuga','foo':[1,3.,True],'cnt':self.cnt},
-					'room':"Game"
+					'room':["Game"]
 				})
 			time.sleep(1./60.)
 	def onSocketOpen(self,nsp):
