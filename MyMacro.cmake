@@ -27,8 +27,8 @@ ELSE()
 		# Use OSX's libtool to merge archives (ihandles universal
 		# binaries properly)
 		ADD_CUSTOM_COMMAND(OUTPUT ${OUTPUT} POST_BUILD
-		COMMAND rm $<TARGET_FILE_NAME:$[OUTPUT}>
-		COMMAND /usr/bin/libtool -static -o $<TARGET_FILE_NAME:$[OUTPUT}>
+		COMMAND rm $<TARGET_FILE_NAME:${OUTPUT}>
+		COMMAND /usr/bin/libtool -static -o $<TARGET_FILE_NAME:${OUTPUT}>
 		${INPUT}
 	  )
 	ELSE()
@@ -36,15 +36,15 @@ ELSE()
 	  # script, that extracts objects from archives with "ar x"
 	  # and repacks them with "ar r"
 	  SET(OUTPUT ${OUTPUT})
-	  set(dummyfile ${CMAKE_CURRENT_BINARY_DIR}/${OUBPUT}_dummy.c)
+	  set(dummyfile ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT}_dummy.c)
 	  file(WRITE ${dummyfile} "const char * dummy = \"${dummyfile}\";")
 	  CONFIGURE_FILE(
-		dummyfile
+		${dummyfile}
 		${CMAKE_CURRENT_BINARY_DIR}/merge_archives_${OUTPUT}.cmake
 		@ONLY
 	  )
 	  ADD_CUSTOM_COMMAND(OUTPUT ${OUTPUT} POST_BUILD
-		COMMAND rm $<TARGET_FILE_NAME:$[OUTPUT}>
+		COMMAND rm $<TARGET_FILE_NAME:${OUTPUT}>
 		COMMAND ${CMAKE_COMMAND} -P
 		${CMAKE_CURRENT_BINARY_DIR}/merge_archives_${OUTPUT}.cmake
 	  )
