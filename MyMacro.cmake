@@ -26,7 +26,7 @@ ELSE()
 	IF(APPLE)
 		# Use OSX's libtool to merge archives (ihandles universal
 		# binaries properly)
-		ADD_CUSTOM_COMMAND(OUTPUT ${OUTPUT} POST_BUILD
+		ADD_CUSTOM_COMMAND(TARGET ${OUTPUT} POST_BUILD
 		COMMAND rm $<TARGET_FILE_NAME:${OUTPUT}>
 		COMMAND /usr/bin/libtool -static -o $<TARGET_FILE_NAME:${OUTPUT}>
 		${INPUT}
@@ -43,11 +43,48 @@ ELSE()
 		${CMAKE_CURRENT_BINARY_DIR}/merge_archives_${OUTPUT}.cmake
 		@ONLY
 	  )
-	  ADD_CUSTOM_COMMAND(OUTPUT ${OUTPUT} POST_BUILD
-		COMMAND rm $<TARGET_FILE_NAME:${OUTPUT}>
-		COMMAND ${CMAKE_COMMAND} -P
-		${CMAKE_CURRENT_BINARY_DIR}/merge_archives_${OUTPUT}.cmake
-	  )
+
+	set(objdir ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT}/objdir)
+	set(objlistfile ${OUTPUT}.objlist)
+	file(MAKE_DIRECTORY ${objdir})
+	add_custom_command(
+		TARGET ${OUTPUT} POST_BUILD 
+		COMMAND ${CMAKE_AR} -x ../../$<TARGET_FILE_NAME:${OUTPUT}>
+		WORKING_DIRECTORY ${objdir})
+	FOREACH(LIB ${INPUT})
+		message(STATUS \"Extracting object files from ${LIB}\")
+		add_custom_command(
+			TARGET ${OUTPUT} POST_BUILD 
+			COMMAND ${CMAKE_AR} -x ${LIB}
+			WORKING_DIRECTORY ${objdir})
+	ENDFOREACH()
+	add_custom_command(TARGET ${OUTPUT} POST_BUILD
+		COMMAND ls *.o > ${objlistfile}
+                WORKING_DIRECTORY ${objdir})
+	#add_custom_command(TARGET ${OUTPUT} POST_BUILD
+	#	COMMAND ${CMAKE_COMMAND} -E echo "Running: ${CMAKE_AR} ru $<TARGET_FILE_NAME:${OUTPUT}> @${objlistfilerpath}"
+	#	COMMAND ${CMAKE_AR} ru "$<TARGET_FILE_NAME:${OUTPUT}>" `ls .`
+	#	WORKING_DIRECTORY ${objdir})
+	add_custom_command(TARGET ${OUTPUT} POST_BUILD
+		COMMAND rm "../../$<TARGET_FILE_NAME:${OUTPUT}>"
+		WORKING_DIRECTORY ${objdir})
+	add_custom_command(TARGET ${OUTPUT} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E echo "Running: ${CMAKE_AR} ru $<TARGET_FILE_NAME:${OUTPUT}> @${objlistfilerpath}"
+		COMMAND ${CMAKE_AR} ru "../../$<TARGET_FILE_NAME:${OUTPUT}>" @"${objlistfile}"
+		WORKING_DIRECTORY ${objdir})
+	add_custom_command(TARGET ${OUTPUT} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E echo "Running: ${CMAKE_RANLIB} $<TARGET_FILE_NAME:${OUTPUT}>"
+		COMMAND ${CMAKE_RANLIB} $<TARGET_FILE_NAME:${OUTPUT}>)
+	#${INPUT}
+	#add_custom_command(TARGET ${outlib} POST_BUILD
+	#	COMMAND ${CMAKE_COMMAND} -E echo "Running: ${CMAKE_AR} ru ${outfile} @${objlistfilerpath}"
+	#		COMMAND ${CMAKE_AR} ru "${outfile}" @"${objlistfilerpath}"
+	#		WORKING_DIRECTORY ${objdir})	
+	  #ADD_CUSTOM_COMMAND(OUTPUT ${OUTPUT} POST_BUILD
+	#	COMMAND rm $<TARGET_FILE_NAME:${OUTPUT}>
+	#	COMMAND ${CMAKE_COMMAND} -P
+	#	${CMAKE_CURRENT_BINARY_DIR}/merge_archives_${OUTPUT}.cmake
+	 # )
 	ENDIF()
 ENDIF()
 endmacro(MERGE_STATIC)

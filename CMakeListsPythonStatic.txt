@@ -54,7 +54,7 @@ target_include_directories(sioclientCpp PRIVATE
 set_property(TARGET sioclientCpp PROPERTY CXX_STANDARD 11)
 set_property(TARGET sioclientCpp PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(sioclientCpp PRIVATE ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
-MERGE_STATIC(sioclientCpp "${BOOST_MERGE_LIBS} ${PYTHON_LIBRARIES}")
+#MERGE_STATIC(sioclientCpp "${BOOST_MERGE_LIBS}")
 #if(BUILD_SHARED_LIBS)
 #set_target_properties(sioclientCpp
 #	PROPERTIES
@@ -80,7 +80,7 @@ target_include_directories(sioclientCpp_tls PRIVATE
 set_property(TARGET sioclientCpp_tls PROPERTY CXX_STANDARD 11)
 set_property(TARGET sioclientCpp_tls PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(sioclientCpp_tls PRIVATE ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${PYTHON_LIBRARIES})
-MERGE_STATIC(sioclientCpp_tls "${BOOST_MERGE_LIBS} ${OPENSSL_LIBRARIES} ${PYTHON_LIBRARIES}")
+#MERGE_STATIC(sioclientCpp_tls "${BOOST_MERGE_LIBS}")
 target_compile_definitions(sioclientCpp_tls PRIVATE -DSIO_TLS)
 #if(BUILD_SHARED_LIBS)
 #set_target_properties(sioclientCpp_tls
