@@ -11,6 +11,7 @@ namespace sio {
 
 const boost::python::object messageW::get_pyo(const message::ptr& ptr){
 	boost::python::list list;
+	boost::python::tuple tuple;
 	boost::python::dict dict;
 	switch(ptr->get_flag()) {
 	case sio::message::flag_null:
@@ -33,9 +34,11 @@ const boost::python::object messageW::get_pyo(const message::ptr& ptr){
 		break;
 	case sio::message::flag_array:
 		for(auto&& e:ptr->get_vector()){
-		 list.append(get_pyo(e));
+			list.append(get_pyo(e));
 		}
-		return list;
+		tuple=boost::python::tuple(list);
+		return tuple;
+		
 		break;
 	case sio::message::flag_object:
 		for(auto&& e:ptr->get_map()){
@@ -70,6 +73,16 @@ const message::ptr messageW::get_message_ptr(const boost::python::object& obj){
 		int len = boost::python::len(list);
 		for(int i=0; i<len; i++) {
 			ret->get_vector().push_back(messageW::get_message_ptr(list[i]));
+		}
+	    return ret;
+	}
+	boost::python::extract<boost::python::tuple> t(obj);
+	if (t.check()) {
+		boost::python::tuple tuple=t();
+		message::ptr ret=array_message::create();
+		int len = boost::python::len(tuple);
+		for(int i=0; i<len; i++) {
+			ret->get_vector().push_back(messageW::get_message_ptr(tuple[i]));
 		}
 	    return ret;
 	}
