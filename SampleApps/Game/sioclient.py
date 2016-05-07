@@ -44,9 +44,17 @@ class SioClient:
 					self.queue[e].append(_queue)
 				else:
 					self.queue[e]=[_queue]
+	def emit(self,event,data,nsp=None):
+		if(nsp is None):
+			self.client.socket().emit(event,data)
+		else:
+			self.client.socket(nsp).emit(event,data)
 	def sendData(self,eventName,dstRooms,data):
 		self.client.socket().emit('transfer',{
 				'event':eventName,
 				'room':dstRooms,
 				'data':data
 			})
+	
+
+
