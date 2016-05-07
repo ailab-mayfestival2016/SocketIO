@@ -6,7 +6,7 @@ Game Server用のデータ送受信のひな形
 
 必要なファイル
 /Prebuilt/Python/Windows/Win32/sioclientCpp.pyd(32ビットの場合)
-/Prebuilt/Python/Windows/Win64/sioclientCpp.pyd(64ビットの場合)
+/Prebuilt/Python/Windows/x64/sioclientCpp.pyd(64ビットの場合)
 
 使い方
 sioclientCpp.pydとsioclient.pyをメインのファイルと同じディレクトリにおいてsioclientをimportする。
