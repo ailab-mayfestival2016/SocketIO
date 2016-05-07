@@ -18,12 +18,12 @@ namespace sio{
 	class Binary;
 	class Array;
 	class Object;
-	//Bool
-	class Bool{
+	//Boolean
+	class Boolean{
 		sio::message::ptr data;
 	public:
-		Bool(const bool& value);
-		virtual ~Bool();
+		Boolean(const bool& value);
+		virtual ~Boolean();
 		sio::message::ptr pack(void) const;
 	};
 	//Integer
@@ -64,6 +64,7 @@ namespace sio{
 	public:
 		Array();
 		virtual ~Array();
+		Array& add(const bool& value);
 		Array& addInt(const int64_t& value);
 		Array& add(const int64_t& value);
 		Array& add(const double& value);
@@ -77,6 +78,7 @@ namespace sio{
 	public:
 		Object();
 		virtual ~Object();
+		Object& add(const std::string& key,const bool& value);
 		Object& addInt(const std::string& key,const int64_t& value);
 		Object& add(const std::string& key,const int64_t& value);
 		Object& add(const std::string& key,const double& value);
