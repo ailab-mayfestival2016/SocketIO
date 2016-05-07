@@ -5,11 +5,11 @@ PROJECT(SocketIOTest)
 
 #ヘッダファイルの場所を指定
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/../include
+    ${CMAKE_CURRENT_SOURCE_DIR}/sioclient/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 #ライブラリの場所を指定
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/sioclient/lib/Release)
 
 ##コンパイラオプション
 set(CMAKE_CXX_FLAGS "-Wall -std=c++0x -fPIC -static-libstdc++")

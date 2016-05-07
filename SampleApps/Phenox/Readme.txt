@@ -9,12 +9,12 @@ Phenox用のデータ送受信のひな形
 	※MakeFileは分からんので付属しません
 
 必要なファイル
-/Prebuilt/Linux_ARM/Cpp/include
+/Prebuilt/Cpp/include
 	/Object.h
 	/sio_client.h
 	/sio_message.h
 	/sio_socket.h
-/Prebuilt/Linux_ARM/Cpp/lib
+/Prebuilt/Cpp/Linux_ARM/lib
 	/Debug/libsioclient.a(デバッグビルドの場合)
 	/Release/libsioclient.a(リリースビルドの場合)
 

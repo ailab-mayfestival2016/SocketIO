@@ -5,8 +5,8 @@ Game Server用のデータ送受信のひな形
 	sioclient.py			sioclientCpp.pydのラッパー
 
 必要なファイル
-/Prebuilt/Windows/Win32/Python/sioclientCpp.pyd(32ビットの場合)
-/Prebuilt/Windows/Win64/Python/sioclientCpp.pyd(64ビットの場合)
+/Prebuilt/Python/Windows/Win32/sioclientCpp.pyd(32ビットの場合)
+/Prebuilt/Python/Windows/Win64/sioclientCpp.pyd(64ビットの場合)
 
 使い方
 sioclientCpp.pydとsioclient.pyをメインのファイルと同じディレクトリにおいてsioclientをimportする。
