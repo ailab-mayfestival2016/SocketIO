@@ -1,22 +1,23 @@
 Phenox用のデータ送受信のひな形
 
 ファイル一覧
-	main.cpp				メイン関数。whileループが回る
-	SioClientWrapper.h		sio::clientのラッパー
-	SioClientWrapper.cpp	sio::clientのラッパー
-	DataMaker.h				送信データを生成するためのサンプル
-	Parser.h				受信データから値を抽出するためのサンプル
-	※MakeFileは分からんので付属しません
+	src/main.cpp			メイン関数。whileループが回る
+	src/SioClientWrapper.h		sio::clientのラッパー
+	src/SioClientWrapper.cpp	sio::clientのラッパー
+	src/DataMaker.h			送信データを生成するためのサンプル
+	src/Parser.h			受信データから値を抽出するためのサンプル
+	CMakeLists.txt			
+	maker.sh			CMakeLists.txtを呼んでビルドする
 
-必要なファイル
+追加で必要なファイル(このサンプルではCMakeLists.txtと同じ場所にinclude,libフォルダごとコピー)
 /Prebuilt/Cpp/include
 	/Object.h
 	/sio_client.h
 	/sio_message.h
 	/sio_socket.h
 /Prebuilt/Cpp/Linux_ARM/lib
-	/Debug/libsioclient.a(デバッグビルドの場合)
-	/Release/libsioclient.a(リリースビルドの場合)
+	/Debug/libsioclient.a(デバッグビルドの場合,20MBくらい)
+	/Release/libsioclient.a(リリースビルドの場合,6MBくらい)
 
 必要なオプション
 ・CXX_FLAGSに-std=C++0xが必要

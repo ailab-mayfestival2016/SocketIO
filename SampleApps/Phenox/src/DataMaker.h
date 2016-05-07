@@ -57,6 +57,6 @@ sio::Object makeSampleObject(){
 		.add((int64_t)2)
 		.add("str"))//Array‚âObject‚Ì“ü‚êŽq‚à‰Â”\
 		.add("Object", sio::Object()
-		.add("Key", "Value"));
+		.add("Key", "Value");
 	return ret;
 }
