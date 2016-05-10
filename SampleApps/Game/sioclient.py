@@ -14,6 +14,8 @@ class SioClient:
 		self.client.connect(uri)
 		if(waitUntilConnected):
 			while(not self.isConnected()):
+				import time
+				time.sleep(0.03)
 	def isConnected(self):
 		return self.client.opened()
 	def onOpen(self):
