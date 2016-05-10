@@ -24,8 +24,25 @@ io.sockets.on('connection', function (socket) {
 		}else{
 			socket.broadcast.emit(data['event'],data['data']);
 		}
+		if(data['event']=="SendCOG"){
+			console.log(cnt);
+			cnt+=1;
+		}
 	});
 	socket.on('disconnect',function(data){
 		console.log(socket.id+' disconnected');
 	});
+});
+
+process.on('SIGINT', () => {
+	console.log('Got SIGINT. ');
+	console.log(io.sockets.sockets);
+	for(var s in io.sockets.sockets){
+		console.log("##############");
+		console.log("s=");
+		console.log(io.sockets.sockets[s]);
+		console.log("##############");
+	    s.disconnect(true);
+	}
+	process.exit();
 });
