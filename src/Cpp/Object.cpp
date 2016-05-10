@@ -7,6 +7,15 @@
 
 #include "Object.h"
 namespace sio{
+	//Null
+	Null::Null()
+	:data(sio::null_message::create()) {
+	
+	}
+	Null::~Null(){}
+	sio::message::ptr Null::pack(void) const{
+		return data;
+	}
 	//Boolean
 	Boolean::Boolean(const bool& value)
 	:data(sio::bool_message::create(value)) {
@@ -54,6 +63,10 @@ namespace sio{
 	Array::~Array() {
 	
 	}
+	Array& Array::add(const Null& value){
+		data->get_vector().push_back(value.pack());
+		return *this;
+	}
 	Array& Array::add(const bool& value){
 		data->get_vector().push_back(sio::bool_message::create(value));
 		return *this;
@@ -93,6 +106,10 @@ namespace sio{
 	
 	Object::~Object() {
 	
+	}
+	Object& Object::add(const std::string& key,const Null& value){
+		data->get_map()[key]=value.pack();
+		return *this;
 	}
 	Object& Object::add(const std::string& key,const bool& value){
 		data->get_map()[key]=sio::bool_message::create(value);

@@ -41,4 +41,6 @@ public:
 			.add("room", sio::Array().add(dstRoom))
 			.add("data", data).pack());
 	}
+	//空データ(イベント名のみ)を送信する
+	void sendData(const std::string& eventName);
 };

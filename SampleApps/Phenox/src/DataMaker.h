@@ -4,6 +4,7 @@
 #include <Object.h>
 
 //送信データを生成するサンプル関数一覧(おそらく大抵は配列か辞書型で送るはず)
+sio::Null makeSampleNull();//Nullの場合
 sio::Boolean makeSampleBoolean();//真偽値の場合
 sio::Integer makeSampleInteger();//整数の場合
 sio::Float makeSampleFloat();//浮動小数の場合
@@ -11,25 +12,29 @@ sio::String makeSampleString();//文字列の場合
 sio::Array makeSampleArray();//配列の場合
 sio::Object makeSampleObject();//辞書型の場合
 
-
+//Nullデータの生成
+sio::Null makeSampleNull(){
+	//コンストラクタでセットしてそのまま返せばよい(＝SendDataの第2引数に直接入れても同じ)
+	return sio::Null();
+}
 //真偽値型データの生成
 sio::Boolean makeSampleBoolean(){
-	//コンストラクタでセットしてそのまま返す
+	//コンストラクタでセットしてそのまま返せばよい(＝SendDataの第2引数に直接入れても同じ)
 	return sio::Boolean(true);
 }
 //整数型データの生成
 sio::Integer makeSampleInteger(){
-	//コンストラクタでセットしてそのまま返す
+	//コンストラクタでセットしてそのまま返せばよい(＝SendDataの第2引数に直接入れても同じ)
 	return sio::Integer(555);
 }
 //浮動小数型データの生成
 sio::Float makeSampleFloat(){
-	//コンストラクタでセットしてそのまま返す
+	//コンストラクタでセットしてそのまま返せばよい(＝SendDataの第2引数に直接入れても同じ)
 	return sio::Float(1e8);
 }
 //文字列型データの生成
 sio::String makeSampleString(){
-	//コンストラクタでセットしてそのまま返す
+	//コンストラクタでセットしてそのまま返せばよい(＝SendDataの第2引数に直接入れても同じ)
 	return sio::String("string data");
 }
 

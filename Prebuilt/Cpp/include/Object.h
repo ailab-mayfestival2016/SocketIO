@@ -11,6 +11,7 @@
 #include <map>
 #include <sio_client.h>
 namespace sio{
+	class Null;
 	class Boolean;
 	class Integer;
 	class Float;
@@ -18,6 +19,14 @@ namespace sio{
 	class Binary;
 	class Array;
 	class Object;
+	//Null
+	class Null{
+		sio::message::ptr data;
+	public:
+		Null();
+		virtual ~Null();
+		sio::message::ptr pack(void) const;
+	};
 	//Boolean
 	class Boolean{
 		sio::message::ptr data;
@@ -64,6 +73,7 @@ namespace sio{
 	public:
 		Array();
 		virtual ~Array();
+		Array& add(const Null& value);
 		Array& add(const bool& value);
 		Array& addInt(const int64_t& value);
 		Array& add(const int64_t& value);
@@ -78,6 +88,7 @@ namespace sio{
 	public:
 		Object();
 		virtual ~Object();
+		Object& add(const std::string& key,const Null& value);
 		Object& add(const std::string& key,const bool& value);
 		Object& addInt(const std::string& key,const int64_t& value);
 		Object& add(const std::string& key,const int64_t& value);

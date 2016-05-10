@@ -103,3 +103,9 @@ sio::message::ptr SioClientWrapper::getData(const std::string& name){
 	}
 	return ret;
 }
+void SioClientWrapper::sendData(const std::string& eventName){
+	client.socket()->emit("transfer", sio::Object()
+		.add("event", eventName)
+		.add("room", sio::Array().add(dstRoom))
+		.add("data", sio::Null()).pack());
+}
